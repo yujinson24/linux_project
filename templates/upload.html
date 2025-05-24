@@ -1,22 +1,5 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>PDF 업로드</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_upload.css') }}">
-</head>
-<body>
-    <h2>📤 PDF 업로드</h2>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" id="fileInput" accept=".pdf" required>
-        <p id="fileName">📎 파일을 선택하세요</p>
-        <button type="submit">업로드</button>
-    </form>
-
-    <script>
-        document.getElementById('fileInput').addEventListener('change', function() {
-            document.getElementById('fileName').innerText = "📎 " + this.files[0].name;
-        });
-    </script>
-</body>
-</html>
+<h2>📤 PPTX 또는 PDF 업로드</h2>
+<form action="/" method="post" enctype="multipart/form-data">
+  <input type="file" name="file" accept=".pptx,.pdf" required>
+  <button type="submit">업로드</button>
+</form>

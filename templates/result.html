@@ -1,1 +1,22 @@
+<h2>📊 이해도 결과</h2>
+<p>총 점수: <strong>{{ score }}%</strong></p>
+
+<table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>슬라이드 번호</th>
+      <th>내용</th>
+      <th>내 응답</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for idx, (num, text) in enumerate(slides) %}
+      <tr>
+        <td>{{ idx + 1 }}</td>
+        <td>{{ text }}</td>
+        <td style="text-align:center;">{{ '⭕' if answers[idx] == 'O' else '❌' }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 

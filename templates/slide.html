@@ -1,32 +1,181 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>O/X 슬라이드</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_slide.css') }}">
+  <meta charset="UTF-8">
+  <title>슬라이드 {{ index }}</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .slide-container {
+      display: flex;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .slide-main {
+      flex-grow: 1;
+      padding: 10px 20px 40px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    h3 {
+      margin: 0 0 10px 0;
+    }
+
+    .slide-img {
+      width: 100%;
+      max-width: 800px;
+      max-height: 70vh;
+      object-fit: contain;
+      margin: 0 auto 20px;
+      display: block;
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 48px;
+      color: rgba(0, 0, 0, 0.6);
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px;
+      z-index: 2;
+      user-select: none;
+    }
+
+    .arrow-btn:hover {
+      color: #000;
+    }
+
+    .arrow-prev { left: 10px; }
+    .arrow-next { right: 10px; }
+
+    form {
+      margin-top: auto;
+      text-align: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      margin: 0 10px;
+      background-color: #eee;
+      text-decoration: none;
+      color: #333;
+      border-radius: 4px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.2s ease;
+    }
+
+    .btn:hover { background-color: #ddd; }
+    .o-btn { background-color: #c3f7d6; }
+    .o-btn:hover { background-color: #9de1a9; }
+    .x-btn { background-color: #f7c3c3; }
+    .x-btn:hover { background-color: #e17979; }
+
+    .slide-sidebar {
+      width: 260px;
+      height: 100vh;
+      overflow-y: auto;
+      border-left: 1px solid #ccc;
+      padding: 10px;
+      box-sizing: border-box;
+      background: #fafafa;
+    }
+
+    .slide-sidebar h4 {
+      margin-top: 0;
+      font-weight: normal;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .thumb-wrapper {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .thumb {
+      width: 100%;
+      max-width: 240px;
+      height: auto;
+      border: 2px solid transparent;
+      transition: border 0.2s;
+      display: block;
+      margin: 0 auto;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    }
+
+    .thumb:hover { border: 2px solid #888; }
+    .thumb.selected { border: 2px solid #007bff; }
+
+    .thumb-number {
+      margin-top: 5px;
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .slide-sidebar { display: none; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="slide-box">
-            <h3>{{ idx }}/{{ total }}번 슬라이드</h3>
-            <img src="{{ image_url }}" alt="슬라이드 이미지">
-        </div>
-        <div class="button-box">
-            {% if not is_last %}
-                <form method="post">
-                    <input type="hidden" name="answer" value="O">
-                    <button class="ox-button o" type="submit">⭕</button>
-                </form>
-                <form method="post">
-                    <input type="hidden" name="answer" value="X">
-                    <button class="ox-button x" type="submit">❌</button>
-                </form>
-            {% else %}
-                <form action="/stats" method="get">
-                    <button class="result-button" type="submit">결과 보기</button>
-                </form>
-            {% endif %}
-        </div>
+  <div class="slide-container">
+    <div class="slide-main">
+      <h3>슬라이드 {{ index }} / {{ slide_count }}</h3>
+
+      {% if not is_first %}
+        <a href="/slides/{{ index - 1 }}" class="arrow-btn arrow-prev" aria-label="이전 슬라이드">&lt;</a>
+      {% endif %}
+      {% if not is_last %}
+        <a href="/slides/{{ index + 1 }}" class="arrow-btn arrow-next" aria-label="다음 슬라이드">&gt;</a>
+      {% else %}
+        <a href="/admin/stats" class="arrow-btn arrow-next" aria-label="결과 보기">✔</a>
+      {% endif %}
+
+      <img src="{{ image_url }}" class="slide-img" alt="슬라이드 이미지">
+
+      {% if not is_first and not is_last %}
+      <form method="post">
+        <input type="hidden" name="answer" value="O">
+        <button class="btn o-btn" type="submit">⭕ O</button>
+      </form>
+      <form method="post">
+        <input type="hidden" name="answer" value="X">
+        <button class="btn x-btn" type="submit">❌ X</button>
+      </form>
+      {% endif %}
     </div>
+
+    <div class="slide-sidebar">
+      <h4>📚 전체 슬라이드</h4>
+      {% for i in range(1, slide_count + 1) %}
+        <div class="thumb-wrapper">
+          <a href="/slides/{{ i }}">
+            <img src="slides/slide_{{ i }}.png" class="thumb {% if i == index %}selected{% endif %}" alt="슬라이드 {{ i }}">
+          </a>
+          <div class="thumb-number">{{ i }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
 </body>
 </html>
+
+                 
